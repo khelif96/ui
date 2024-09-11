@@ -15,6 +15,7 @@ import { Tasks } from "pages/version/Tasks";
 import { PatchStatus, PatchTab } from "types/patch";
 import { queryString } from "utils";
 import TaskDuration from "./TaskDuration";
+import { TestAnalysis } from "./TestAnalysis";
 
 const { parseQueryString } = queryString;
 
@@ -117,6 +118,16 @@ const tabMap = ({
       <DownstreamTasks childPatches={childPatches} />
     </Tab>
   ),
+  [PatchTab.TestAnalysis]: (
+    <Tab
+      key="test-analysis-tab"
+      data-cy="test-analysis-tab"
+      id="test-analysis-tab"
+      name="Test Analysis"
+    >
+      <TestAnalysis versionId={versionId} />
+    </Tab>
+  ),
 });
 
 export const VersionTabs: React.FC<VersionTabProps> = ({ version }) => {
@@ -138,6 +149,7 @@ export const VersionTabs: React.FC<VersionTabProps> = ({ version }) => {
       [PatchTab.TaskDuration]: true,
       [PatchTab.Changes]: isPatch && requester !== Requester.GitHubMergeQueue,
       [PatchTab.Downstream]: childPatches,
+      [PatchTab.TestAnalysis]: true,
     }),
     [isPatch, requester, childPatches],
   );
