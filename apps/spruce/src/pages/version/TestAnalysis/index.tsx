@@ -1,10 +1,15 @@
+import { useState } from "react";
 import { useQuery } from "@apollo/client";
 import styled from "@emotion/styled";
+import Banner from "@leafygreen-ui/banner";
+import Checkbox from "@leafygreen-ui/checkbox";
 import { ListSkeleton } from "@leafygreen-ui/skeleton-loader";
+import { Body, H2 } from "@leafygreen-ui/typography";
 import pluralize from "pluralize";
 import { Unpacked } from "@evg-ui/lib/types/utils";
 import { Accordion } from "components/Accordion";
 import { StyledRouterLink } from "components/styles";
+import TaskStatusBadge from "components/TaskStatusBadge";
 import { getTaskRoute } from "constants/routes";
 import { failedTaskStatuses } from "constants/task";
 import { size } from "constants/tokens";
@@ -19,6 +24,8 @@ interface TestAnalysisProps {
   versionId: string;
 }
 export const TestAnalysis: React.FC<TestAnalysisProps> = ({ versionId }) => {
+  const [onlyShowFailedOnMoreThanOneTask, setOnlyShowFailedOnMoreThanOneTask] =
+    useState(false);
   const { data, loading } = useQuery<
     TestAnalysisQuery,
     TestAnalysisQueryVariables
@@ -38,32 +45,48 @@ export const TestAnalysis: React.FC<TestAnalysisProps> = ({ versionId }) => {
     ? groupTestsByName(data?.version?.tasks?.data)
     : new Map<string, TaskBuildVariantField[]>();
 
-  const testsThatFailedAcrossMoreThanOneTask = Array.from(
-    groupedTestsMap.entries(),
-  ).filter(([_, tasks]) => tasks.length > 1);
+  const groupedTestsMapEntries = Array.from(groupedTestsMap.entries());
+  const testsThatFailedAcrossMoreThanOneTask = groupedTestsMapEntries.filter(
+    ([_, tasks]) => tasks.length > 1,
+  );
 
   return (
     <div>
-      <h1>Test Analysis</h1>
       {loading ? (
         <ListSkeleton />
       ) : (
-        <pre>
-          <h2>
+        <div>
+          <H2>
             {testsThatFailedAcrossMoreThanOneTask.length} tests failed across
             more than one task
-          </h2>
+          </H2>
+          <Banner variant="info">
+            This page shows tests that failed across more than one task. If a
+            test failed on multiple tasks, it may indicate a flaky test or a
+            larger issue. Click on the test name to see more details.
+          </Banner>
+          <Checkbox
+            checked={onlyShowFailedOnMoreThanOneTask}
+            data-cy="only-show-multi-task-failure-checkbox"
+            label="Only show tests that failed on more than one task"
+            onChange={(e) =>
+              setOnlyShowFailedOnMoreThanOneTask(e.target.checked)
+            }
+          />
           {/* Iterate through groupedTestsMap and print the test name followed by the length of value */}
-          {Array.from(groupedTestsMap.entries()).map(([test, tasks]) => (
+          {(onlyShowFailedOnMoreThanOneTask
+            ? testsThatFailedAcrossMoreThanOneTask
+            : groupedTestsMapEntries
+          ).map(([test, tasks]) => (
             <SpacedDiv key={test}>
               <Accordion
                 title={
-                  <span>
+                  <Body>
                     <b>{test}</b> failed on{" "}
                     <b>
                       {tasks.length} {pluralize("task", tasks.length)}
                     </b>
-                  </span>
+                  </Body>
                 }
               >
                 <ul>
@@ -74,13 +97,14 @@ export const TestAnalysis: React.FC<TestAnalysisProps> = ({ versionId }) => {
                       >
                         {task.taskName} - {task.buildVariant}
                       </StyledRouterLink>
+                      <TaskStatusBadge status={task.status} />
                     </li>
                   ))}
                 </ul>
               </Accordion>
             </SpacedDiv>
           ))}
-        </pre>
+        </div>
       )}
     </div>
   );
@@ -90,6 +114,7 @@ type TaskBuildVariantField = {
   taskName: string;
   buildVariant: string;
   id: string;
+  status: string;
 };
 const groupTestsByName = (tasks: TestAnalysisQueryTasks) => {
   const testMap = new Map<string, TaskBuildVariantField[]>();
@@ -101,6 +126,7 @@ const groupTestsByName = (tasks: TestAnalysisQueryTasks) => {
           taskName: task.displayName,
           buildVariant: task.buildVariant,
           id: task.id,
+          status: task.status,
         });
       } else {
         testMap.set(test, [
@@ -108,6 +134,7 @@ const groupTestsByName = (tasks: TestAnalysisQueryTasks) => {
             taskName: task.displayName,
             buildVariant: task.buildVariant,
             id: task.id,
+            status: task.status,
           },
         ]);
       }

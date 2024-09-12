@@ -8993,6 +8993,7 @@ export type TestAnalysisQuery = {
         displayName: string;
         execution: number;
         id: string;
+        status: string;
         tests: {
           __typename?: "TaskTestResult";
           filteredTestCount: number;
