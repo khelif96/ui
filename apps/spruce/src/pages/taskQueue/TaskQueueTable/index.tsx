@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import Badge from "@leafygreen-ui/badge";
-import { LGColumnDef, useLeafyGreenTable } from "@leafygreen-ui/table";
+import { LGColumnDef, useLeafyGreenVirtualTable } from "@leafygreen-ui/table";
 import { Body } from "@leafygreen-ui/typography";
 import { useTaskQueueAnalytics } from "analytics";
 import { StyledRouterLink, WordBreak } from "components/styles";
@@ -37,45 +37,59 @@ const TaskQueueTable: React.FC<TaskQueueTableProps> = ({
     [],
   );
 
-  const table = useLeafyGreenTable<TaskQueueColumnData>({
-    data: taskQueue,
-    columns,
+  // const table = useLeafyGreenTable<TaskQueueColumnData>({
+  //   data: taskQueue,
+  //   columns,
+  //   containerRef: tableContainerRef,
+  //   useVirtualScrolling: true,
+  //   enableColumnFilters: false,
+  //   virtualizerOptions: {
+  //     estimateSize,
+  //   },
+  // });
+
+  const table = useLeafyGreenVirtualTable<TaskQueueColumnData>({
     containerRef: tableContainerRef,
-    useVirtualScrolling: true,
+    data: taskQueue.slice(),
+    columns,
     enableColumnFilters: false,
     virtualizerOptions: {
       estimateSize,
     },
   });
+
   const performedInitialScroll = useRef(false);
   useEffect(() => {
     if (taskId !== undefined && !performedInitialScroll.current) {
       const i = taskQueue.findIndex((t) => t.id === taskId);
       setSelectedRowIndexes([i]);
-      table.scrollToIndex(i, { align: "center" });
+      table.virtual.scrollToIndex(i, { align: "center" });
 
       setTimeout(() => {
         performedInitialScroll.current = true;
-        table.scrollToIndex(i, { align: "center" });
+        table.virtual.scrollToIndex(i, { align: "center" });
       }, 200);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [taskId, taskQueue]);
 
   return (
-    <StyledBaseTable
-      ref={tableContainerRef}
-      data-cy="task-queue-table"
-      emptyComponent={<TablePlaceholder message="No tasks found in queue." />}
-      selectedRowIndexes={selectedRowIndexes}
-      shouldAlternateRowColor
-      table={table}
-    />
+    <div>
+      <StyledBaseTable
+        ref={tableContainerRef}
+        data-cy="task-queue-table"
+        emptyComponent={<TablePlaceholder message="No tasks found in queue." />}
+        selectedRowIndexes={selectedRowIndexes}
+        shouldAlternateRowColor
+        table={table}
+      />
+    </div>
   );
 };
 
 const StyledBaseTable = styled(BaseTable)`
   flex-grow: 1;
+  height: 80vh;
 `;
 
 const TaskCell = styled.div`

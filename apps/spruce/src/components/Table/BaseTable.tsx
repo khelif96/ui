@@ -18,6 +18,7 @@ import {
   TableHead,
   VirtualItem,
   LeafyGreenTableRow,
+  LeafyGreenVirtualTable,
 } from "@leafygreen-ui/table";
 import {
   TableFilterPopover,
@@ -81,11 +82,10 @@ export const BaseTable = forwardRef(
     }: SpruceTableProps & TableProps<any>,
     ref: ForwardedRef<HTMLDivElement>,
   ) => {
-    // @ts-expect-error: FIXME. This comment was added by an automated script.
-    const { virtualRows } = table;
+    const { virtual } = table as LeafyGreenVirtualTable<any>;
     // @ts-expect-error: FIXME. This comment was added by an automated script.
     const { rows } = table.getRowModel();
-    const hasVirtualRows = virtualRows && virtualRows.length > 0;
+    const hasVirtualRows = virtual !== undefined;
     return (
       <>
         <StyledTable ref={ref} data-cy={dataCyTable} table={table} {...args}>
@@ -159,9 +159,8 @@ export const BaseTable = forwardRef(
               />
             )}
             {hasVirtualRows
-              ? // @ts-expect-error: FIXME. This comment was added by an automated script.
-                virtualRows.map((vr) => {
-                  const row = rows[vr.index];
+              ? virtual.virtualItems.map((vr) => {
+                  const { row } = vr;
                   return (
                     <RenderableRow
                       key={row.id}
@@ -221,10 +220,10 @@ const RenderableRow = <T extends LGRowData>({
   row: LeafyGreenTableRow<T>;
   virtualRow: VirtualItem;
   isSelected?: boolean;
-}) => {
-  console.log({ row, isExpanded: row.getIsExpanded() });
-  return (
-    <>
+}) => (
+  // console.log({ row, isExpanded: row.getIsExpanded() });
+  <>
+    {virtualRow && row.original.renderExpandedContent ? null : (
       <Row
         className={css`
           &[aria-hidden="false"] td > div {
@@ -247,33 +246,35 @@ const RenderableRow = <T extends LGRowData>({
           </Cell>
         ))}
       </Row>
-      {row.original.renderExpandedContent && row.getIsExpanded() && (
-        <StyledExpandedContent row={row} />
+    )}
+    {!virtualRow &&
+      row.original.renderExpandedContent &&
+      row.getIsExpanded() && (
+        <StyledExpandedContent row={row} virtualRow={virtualRow} />
       )}
-      {row.subRows &&
-        row.getIsExpanded() &&
-        row.subRows.map((subRow) => (
-          <Row
-            key={subRow.id}
-            className={css`
-              &[aria-hidden="false"] td > div[data-state="entered"] {
-                max-height: unset;
-              }
-            `}
-            row={subRow}
-            virtualRow={virtualRow}
-          >
-            {subRow.getVisibleCells().map((cell) => (
-              <Cell key={cell.id} cell={cell}>
-                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-              </Cell>
-            ))}
-          </Row>
-        ))}
-    </>
-  );
-};
-
+    {!virtualRow &&
+      row.subRows &&
+      row.getIsExpanded() &&
+      row.subRows.map((subRow) => (
+        <Row
+          key={subRow.id}
+          className={css`
+            &[aria-hidden="false"] td > div[data-state="entered"] {
+              max-height: unset;
+            }
+          `}
+          row={subRow}
+          virtualRow={virtualRow}
+        >
+          {subRow.getVisibleCells().map((cell) => (
+            <Cell key={cell.id} cell={cell}>
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </Cell>
+          ))}
+        </Row>
+      ))}
+  </>
+);
 const StyledTable = styled(Table)`
   transition: none !important;
 `;
