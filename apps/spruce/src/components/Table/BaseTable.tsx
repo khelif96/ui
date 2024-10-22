@@ -221,50 +221,58 @@ const RenderableRow = <T extends LGRowData>({
   row: LeafyGreenTableRow<T>;
   virtualRow: VirtualItem;
   isSelected?: boolean;
-}) => (
-  <Row
-    className={css`
-      &[aria-hidden="false"] td > div {
-        max-height: unset;
-      }
-      ${isSelected &&
-      `
+}) => {
+  console.log({ row, isExpanded: row.getIsExpanded() });
+  return (
+    <>
+      <Row
+        className={css`
+          &[aria-hidden="false"] td > div {
+            max-height: unset;
+          }
+          ${isSelected &&
+          `
         background-color: ${blue.light3} !important;
         font-weight:bold;
         `}
-    `}
-    data-cy={dataCyRow}
-    data-selected={isSelected}
-    row={row}
-    virtualRow={virtualRow}
-  >
-    {row.getVisibleCells().map((cell) => (
-      <Cell key={cell.id} style={cellPaddingStyle}>
-        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-      </Cell>
-    ))}
-    {row.original.renderExpandedContent && <StyledExpandedContent row={row} />}
-    {row.subRows &&
-      row.subRows.map((subRow) => (
-        <Row
-          key={subRow.id}
-          className={css`
-            &[aria-hidden="false"] td > div[data-state="entered"] {
-              max-height: unset;
-            }
-          `}
-          row={subRow}
-          virtualRow={virtualRow}
-        >
-          {subRow.getVisibleCells().map((cell) => (
-            <Cell key={cell.id}>
-              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-            </Cell>
-          ))}
-        </Row>
-      ))}
-  </Row>
-);
+        `}
+        data-cy={dataCyRow}
+        data-selected={isSelected}
+        row={row}
+        virtualRow={virtualRow}
+      >
+        {row.getVisibleCells().map((cell) => (
+          <Cell key={cell.id} cell={cell} style={cellPaddingStyle}>
+            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          </Cell>
+        ))}
+      </Row>
+      {row.original.renderExpandedContent && row.getIsExpanded() && (
+        <StyledExpandedContent row={row} />
+      )}
+      {row.subRows &&
+        row.getIsExpanded() &&
+        row.subRows.map((subRow) => (
+          <Row
+            key={subRow.id}
+            className={css`
+              &[aria-hidden="false"] td > div[data-state="entered"] {
+                max-height: unset;
+              }
+            `}
+            row={subRow}
+            virtualRow={virtualRow}
+          >
+            {subRow.getVisibleCells().map((cell) => (
+              <Cell key={cell.id} cell={cell}>
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </Cell>
+            ))}
+          </Row>
+        ))}
+    </>
+  );
+};
 
 const StyledTable = styled(Table)`
   transition: none !important;
