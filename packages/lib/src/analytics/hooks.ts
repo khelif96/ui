@@ -38,7 +38,8 @@ export const useAnalyticsRoot = <
 };
 
 /**
- * `usePageViewDuration` is a hook that tracks how long a page/component is viewed and sends an analytics event on unmount
+ * `usePageViewDuration` is a hook that tracks how long a page/component is actively viewed and sends an analytics event on unmount
+ * Only counts time when the page is visible (not when user switches tabs or minimizes the browser)
  * @param analyticsIdentifier - The identifier for the page/component being tracked
  * @param attributes - Additional properties to include with the analytics event
  * @example
@@ -53,22 +54,48 @@ export const usePageViewDuration = (
   analyticsIdentifier: AnalyticsIdentifier,
   attributes: AnalyticsProperties = {},
 ) => {
-  const mountTimeRef = useRef<number>(Date.now());
+  const visibleStartTimeRef = useRef<number | null>(null);
+  const totalVisibleDurationRef = useRef<number>(0);
 
   useEffect(() => {
-    // Capture mount time
-    mountTimeRef.current = Date.now();
+    // Initialize tracking when page is visible
+    if (!document.hidden) {
+      visibleStartTimeRef.current = Date.now();
+    }
 
-    // Send event on unmount with duration
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // Page became hidden - accumulate the visible time
+        if (visibleStartTimeRef.current !== null) {
+          totalVisibleDurationRef.current +=
+            Date.now() - visibleStartTimeRef.current;
+          visibleStartTimeRef.current = null;
+        }
+      } else {
+        // Page became visible - start tracking again
+        visibleStartTimeRef.current = Date.now();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // Send event on unmount with total visible duration
     return () => {
-      const durationMs = Date.now() - mountTimeRef.current;
-      const durationSeconds = Math.round(durationMs / 1000);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+
+      // Add any remaining visible time
+      let finalDurationMs = totalVisibleDurationRef.current;
+      if (visibleStartTimeRef.current !== null) {
+        finalDurationMs += Date.now() - visibleStartTimeRef.current;
+      }
+
+      const durationSeconds = Math.round(finalDurationMs / 1000);
 
       sendEventTrace(
         { name: "Viewed page" },
         {
           "analytics.identifier": analyticsIdentifier,
-          "page.view_duration_ms": durationMs,
+          "page.view_duration_ms": finalDurationMs,
           "page.view_duration_seconds": durationSeconds,
           ...attributes,
         },
