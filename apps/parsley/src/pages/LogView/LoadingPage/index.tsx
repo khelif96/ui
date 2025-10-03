@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import styled from "@emotion/styled";
 import { Body, BodyProps } from "@leafygreen-ui/typography";
 import { useParams } from "react-router-dom";
+import { usePageViewDuration } from "@evg-ui/lib/analytics/hooks";
 import Icon from "@evg-ui/lib/components/Icon";
 import { fontSize, size } from "@evg-ui/lib/constants/tokens";
 import { useToastContext } from "@evg-ui/lib/context/toast";
@@ -24,6 +25,9 @@ interface LoadingPageProps {
 }
 
 const LoadingPage: React.FC<LoadingPageProps> = ({ logType }) => {
+  usePageViewDuration("Loading Page", {
+    "log.type": logType,
+  });
   const {
     [slugs.buildID]: buildID,
     [slugs.execution]: execution,

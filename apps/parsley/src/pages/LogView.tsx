@@ -1,3 +1,4 @@
+import { usePageViewDuration } from "@evg-ui/lib/analytics/hooks";
 import LogWindow from "components/LogWindow";
 import { LogTypes } from "constants/enums";
 import { useLogContext } from "context/LogContext";
@@ -9,6 +10,9 @@ interface LogViewProps {
 
 const LogView: React.FC<LogViewProps> = ({ logType }) => {
   const { hasLogs } = useLogContext();
+  usePageViewDuration("Log View", {
+    "log.type": logType,
+  });
   return hasLogs === null ? <LoadingPage logType={logType} /> : <LogWindow />;
 };
 
