@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
+import { usePageVisibility } from "../hooks";
 import { Analytics, ActionType, AnalyticsProperties } from "./types";
 import { sendEventTrace } from "./utils";
 
@@ -56,50 +57,42 @@ export const usePageViewDuration = (
 ) => {
   const visibleStartTimeRef = useRef<number | null>(null);
   const totalVisibleDurationRef = useRef<number>(0);
+  const isVisible = usePageVisibility();
 
   useEffect(() => {
-    // Initialize tracking when page is visible
-    if (!document.hidden) {
+    if (isVisible) {
+      // Page became visible - start tracking
       visibleStartTimeRef.current = Date.now();
+    } else if (visibleStartTimeRef.current !== null) {
+      // Page became hidden - accumulate the visible time
+      totalVisibleDurationRef.current +=
+        Date.now() - visibleStartTimeRef.current;
+      visibleStartTimeRef.current = null;
     }
+  }, [isVisible]);
 
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        // Page became hidden - accumulate the visible time
+  useEffect(
+    () =>
+      // Send event on unmount with total visible duration
+      () => {
+        // Add any remaining visible time
+        let finalDurationMs = totalVisibleDurationRef.current;
         if (visibleStartTimeRef.current !== null) {
-          totalVisibleDurationRef.current +=
-            Date.now() - visibleStartTimeRef.current;
-          visibleStartTimeRef.current = null;
+          finalDurationMs += Date.now() - visibleStartTimeRef.current;
         }
-      } else {
-        // Page became visible - start tracking again
-        visibleStartTimeRef.current = Date.now();
-      }
-    };
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+        const durationSeconds = Math.round(finalDurationMs / 1000);
 
-    // Send event on unmount with total visible duration
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-
-      // Add any remaining visible time
-      let finalDurationMs = totalVisibleDurationRef.current;
-      if (visibleStartTimeRef.current !== null) {
-        finalDurationMs += Date.now() - visibleStartTimeRef.current;
-      }
-
-      const durationSeconds = Math.round(finalDurationMs / 1000);
-
-      sendEventTrace(
-        { name: "Viewed page" },
-        {
-          "analytics.identifier": analyticsIdentifier,
-          "page.view_duration_ms": finalDurationMs,
-          "page.view_duration_seconds": durationSeconds,
-          ...attributes,
-        },
-      );
-    };
-  }, [analyticsIdentifier, attributes]);
+        sendEventTrace(
+          { name: "Viewed page" },
+          {
+            "analytics.identifier": analyticsIdentifier,
+            "page.view_duration_ms": finalDurationMs,
+            "page.view_duration_seconds": durationSeconds,
+            ...attributes,
+          },
+        );
+      },
+    [analyticsIdentifier, attributes],
+  );
 };
