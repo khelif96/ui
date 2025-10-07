@@ -1,12 +1,5 @@
-import { MockedProvider } from "@apollo/client/testing";
-import { act, renderHook } from "@evg-ui/lib/test_utils";
-import { getUserMock } from "gql/mocks/getUser";
+import { act, renderHook } from "../../test_utils";
 import { usePageVisibility } from ".";
-
-// @ts-expect-error: FIXME. This comment was added by an automated script.
-const Provider = ({ children }) => (
-  <MockedProvider mocks={[getUserMock]}>{children}</MockedProvider>
-);
 
 describe("usePageVisibility", () => {
   const updatePageVisibility = (status: string) => {
@@ -19,16 +12,12 @@ describe("usePageVisibility", () => {
   };
 
   it("usePageVisibility should return true when user is viewing document", () => {
-    const { result } = renderHook(() => usePageVisibility(), {
-      wrapper: Provider,
-    });
+    const { result } = renderHook(() => usePageVisibility());
     expect(result.current).toBe(true);
   });
 
   it("usePageVisibility should return false when user is not viewing document", () => {
-    const { result } = renderHook(() => usePageVisibility(), {
-      wrapper: Provider,
-    });
+    const { result } = renderHook(() => usePageVisibility());
     updatePageVisibility("hidden");
     expect(result.current).toBe(false);
   });

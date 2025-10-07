@@ -3,3 +3,4 @@ export { useOnClickOutside } from "./useOnClickOutside";
 export { useKeyboardShortcut } from "./useKeyboardShortcut";
 export { usePageTitle } from "./usePageTitle";
 export { useQueryParam, useQueryParams } from "./useQueryParam";
+export { usePageVisibility } from "./usePageVisibility";

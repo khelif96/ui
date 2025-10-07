@@ -5,7 +5,6 @@ export { useOnClickOutside } from "@evg-ui/lib/hooks";
 export { useVersionTaskStatusSelect } from "./useVersionTaskStatusSelect";
 export { useLegacyUIURL } from "./useLegacyUIURL";
 export { useNetworkStatus } from "./useNetworkStatus";
-export { usePageVisibility } from "./usePageVisibility";
 export { usePolling } from "./usePolling";
 export { useStatusesFilter } from "./useStatusesFilter";
 export { usePrevious } from "@evg-ui/lib/hooks";
