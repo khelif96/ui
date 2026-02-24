@@ -14,7 +14,6 @@ import { COLUMN_LABEL_WIDTH, ROW_LABEL_WIDTH } from "../constants";
 import { HistoryTableIcon } from "../HistoryTableIcon";
 
 const { gray } = palette;
-const statusIconSize = 20;
 
 interface TaskCellProps {
   task: {
@@ -63,7 +62,7 @@ const TaskCell: React.FC<TaskCellProps> = ({
 
 const EmptyCell = () => (
   <Cell data-cy="empty-cell">
-    <Circle />
+    <EmptySquare />
   </Cell>
 );
 
@@ -114,11 +113,10 @@ const ColumnHeaderCell: React.FC<ColumnHeaderCellProps> = ({
   </HeaderCell>
 );
 
-const Circle = styled.div`
-  width: ${statusIconSize}px;
-  height: ${statusIconSize}px;
-  border-radius: 50%;
-  border: 2px solid ${gray.light1};
+const EmptySquare = styled.div`
+  width: 16px;
+  height: 16px;
+  border: 1px solid ${gray.light1};
   margin: 0 auto;
 `;
 
