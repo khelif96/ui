@@ -7,7 +7,7 @@ import {
   setProjectAnnotations,
 } from "@storybook/react-vite";
 import { expect } from "vitest";
-import path from "path";
+import path from "node:path";
 import * as addonAnnotations from "@evg-ui/storybook-addon/src/preview";
 import { act, render } from "test_utils";
 import snapshotSerializer from "test_utils/snapshotSerializer";
