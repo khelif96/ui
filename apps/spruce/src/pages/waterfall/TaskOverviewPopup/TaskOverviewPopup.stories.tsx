@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { StoryObj } from "@storybook/react-vite";
+import WithToastContext from "@evg-ui/lib/test_utils/toast-decorator";
 import { ApolloMock } from "@evg-ui/lib/test_utils/types";
 import { TaskStatus } from "@evg-ui/lib/types/task";
 import {
@@ -11,6 +12,7 @@ import { TaskOverviewPopup } from ".";
 
 export default {
   title: "Pages/Waterfall/TaskOverviewPopup",
+  decorators: [(Story: () => React.JSX.Element) => WithToastContext(Story)],
   component: TaskOverviewPopup,
 };
 
@@ -46,6 +48,8 @@ const defaultMock: ApolloMock<
         __typename: "Task",
         id: taskId,
         execution: 0,
+        buildVariant: "ubuntu1604",
+        canRestart: true,
         displayName: "test-task",
         displayStatus: TaskStatus.Succeeded,
         distroId: "ubuntu1604-small",
@@ -88,6 +92,8 @@ const failedTaskMock: ApolloMock<
         __typename: "Task",
         id: taskId,
         execution: 0,
+        buildVariant: "ubuntu1604",
+        canRestart: true,
         displayName: "cypress-test",
         displayStatus: TaskStatus.Failed,
         distroId: "ubuntu1604-large",
@@ -131,6 +137,8 @@ const withAnnotationsMock: ApolloMock<
         __typename: "Task",
         id: taskId,
         execution: 0,
+        buildVariant: "ubuntu2004",
+        canRestart: true,
         displayName: "e2e-test",
         displayStatus: TaskStatus.Failed,
         distroId: "ubuntu2004-small",
@@ -199,6 +207,8 @@ const longTaskNameMock: ApolloMock<
         __typename: "Task",
         id: taskId,
         execution: 0,
+        buildVariant: "ubuntu2004",
+        canRestart: false,
         displayName:
           "very-long-task-name-that-should-wrap-or-truncate-properly-in-the-popup",
         displayStatus: TaskStatus.WillRun,

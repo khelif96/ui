@@ -11341,11 +11341,14 @@ export type TaskOverviewPopupQuery = {
   task?: {
     __typename?: "Task";
     id: string;
+    buildVariant: string;
+    canRestart: boolean;
     displayName: string;
     displayStatus: string;
     distroId: string;
     execution: number;
     finishTime?: Date | null;
+    priority?: number | null;
     timeTaken?: number | null;
     annotation?: {
       __typename?: "Annotation";
