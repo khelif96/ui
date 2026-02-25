@@ -4,7 +4,7 @@ import { Disclaimer } from "@leafygreen-ui/typography";
 import { StyledRouterLink } from "@evg-ui/lib/components/styles";
 import { size } from "@evg-ui/lib/constants/tokens";
 import { TaskStatus } from "@evg-ui/lib/types/task";
-import { TaskStatusIcon } from "components/TaskStatusIcon";
+import { TaskBox } from "components/TaskBox";
 import { getTaskRoute } from "constants/routes";
 import { MetStatus, RequiredStatus } from "gql/generated/types";
 
@@ -61,10 +61,10 @@ const StyledBadge = styled(Badge)`
 `;
 
 const metStatusToIcon = {
-  [MetStatus.Started]: <TaskStatusIcon status={TaskStatus.Started} />,
-  [MetStatus.Met]: <TaskStatusIcon status={TaskStatus.Succeeded} />,
-  [MetStatus.Unmet]: <TaskStatusIcon status={TaskStatus.Failed} />,
-  [MetStatus.Pending]: <TaskStatusIcon status={TaskStatus.Pending} />,
+  [MetStatus.Started]: <TaskBox status={TaskStatus.Started} />,
+  [MetStatus.Met]: <TaskBox status={TaskStatus.Succeeded} />,
+  [MetStatus.Unmet]: <TaskBox status={TaskStatus.Failed} />,
+  [MetStatus.Pending]: <TaskBox status={TaskStatus.Pending} />,
 };
 
 const requiredStatusToBadge = {

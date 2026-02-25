@@ -2,7 +2,8 @@ import { memo } from "react";
 import styled from "@emotion/styled";
 import { Checkbox } from "@leafygreen-ui/checkbox";
 import { size } from "@evg-ui/lib/constants/tokens";
-import { TaskStatusIcon } from "components/TaskStatusIcon";
+import { TaskStatus } from "@evg-ui/lib/types/task";
+import { TaskBox } from "components/TaskBox";
 
 interface TaskStatusCheckboxProps {
   baseStatus?: string;
@@ -27,8 +28,12 @@ const CheckboxComponent: React.FC<TaskStatusCheckboxProps> = ({
     data-cy="task-status-checkbox"
     label={
       <StateItemWrapper>
-        <TaskStatusIcon status={status} />
-        {baseStatus ? <TaskStatusIcon status={baseStatus} /> : <EmptyCell />}
+        <TaskBox status={status as TaskStatus} />
+        {baseStatus ? (
+          <TaskBox status={baseStatus as TaskStatus} />
+        ) : (
+          <EmptyCell />
+        )}
         <div>{displayName}</div>
       </StateItemWrapper>
     }
