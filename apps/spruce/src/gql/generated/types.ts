@@ -5499,28 +5499,6 @@ export type RepoAppSettingsFragment = {
   } | null;
 };
 
-export type ProjectContainerSettingsFragment = {
-  __typename?: "Project";
-  id: string;
-  containerSizeDefinitions?: Array<{
-    __typename?: "ContainerResources";
-    cpu: number;
-    memoryMb: number;
-    name: string;
-  }> | null;
-};
-
-export type RepoContainerSettingsFragment = {
-  __typename?: "RepoRef";
-  id: string;
-  containerSizeDefinitions?: Array<{
-    __typename?: "ContainerResources";
-    cpu: number;
-    memoryMb: number;
-    name: string;
-  }> | null;
-};
-
 export type ProjectGeneralSettingsFragment = {
   __typename?: "Project";
   id: string;
@@ -5709,12 +5687,6 @@ export type ProjectSettingsFieldsFragment = {
       name: string;
       permissions: { [key: string]: any };
     }>;
-    containerSizeDefinitions?: Array<{
-      __typename?: "ContainerResources";
-      cpu: number;
-      memoryMb: number;
-      name: string;
-    }> | null;
     banner?: {
       __typename?: "ProjectBanner";
       text: string;
@@ -5920,12 +5892,6 @@ export type RepoSettingsFieldsFragment = {
       name: string;
       permissions: { [key: string]: any };
     }>;
-    containerSizeDefinitions?: Array<{
-      __typename?: "ContainerResources";
-      cpu: number;
-      memoryMb: number;
-      name: string;
-    }> | null;
     patchTriggerAliases?: Array<{
       __typename?: "PatchTriggerAlias";
       alias: string;
@@ -7227,12 +7193,6 @@ export type SaveAdminSettingsMutation = {
       __typename?: "NotifyConfig";
       ses?: { __typename?: "SESConfig"; senderAddress?: string | null } | null;
     } | null;
-    podLifecycle?: {
-      __typename?: "PodLifecycleConfig";
-      maxParallelPodRequests?: number | null;
-      maxPodDefinitionCleanupRate?: number | null;
-      maxSecretCleanupRate?: number | null;
-    } | null;
     repotracker?: {
       __typename?: "RepotrackerConfig";
       maxConcurrentRequests?: number | null;
@@ -7285,8 +7245,6 @@ export type SaveAdminSettingsMutation = {
       jwtTokenForCLIDisabled?: boolean | null;
       largeParserProjectsDisabled?: boolean | null;
       monitorDisabled?: boolean | null;
-      podAllocatorDisabled?: boolean | null;
-      podInitDisabled?: boolean | null;
       psLoggingDisabled?: boolean | null;
       releaseModeDisabled?: boolean | null;
       repotrackerDisabled?: boolean | null;
@@ -7299,7 +7257,6 @@ export type SaveAdminSettingsMutation = {
       taskDispatchDisabled?: boolean | null;
       taskLoggingDisabled?: boolean | null;
       taskReliabilityDisabled?: boolean | null;
-      unrecognizedPodCleanupDisabled?: boolean | null;
       webhookNotificationsDisabled?: boolean | null;
     } | null;
     taskLimits?: {
@@ -7930,12 +7887,6 @@ export type AdminSettingsQuery = {
       __typename?: "ParameterStoreConfig";
       prefix?: string | null;
     } | null;
-    podLifecycle?: {
-      __typename?: "PodLifecycleConfig";
-      maxParallelPodRequests?: number | null;
-      maxPodDefinitionCleanupRate?: number | null;
-      maxSecretCleanupRate?: number | null;
-    } | null;
     projectCreation?: {
       __typename?: "ProjectCreationConfig";
       jiraProject?: string | null;
@@ -7981,44 +7932,6 @@ export type AdminSettingsQuery = {
           __typename?: "PersistentDNSConfig";
           domain?: string | null;
           hostedZoneID?: string | null;
-        } | null;
-        pod?: {
-          __typename?: "AWSPodConfig";
-          region?: string | null;
-          role?: string | null;
-          ecs?: {
-            __typename?: "ECSConfig";
-            allowedImages: Array<string>;
-            executionRole?: string | null;
-            logGroup?: string | null;
-            logRegion?: string | null;
-            logStreamPrefix?: string | null;
-            maxCPU?: number | null;
-            maxMemoryMb?: number | null;
-            taskDefinitionPrefix?: string | null;
-            taskRole?: string | null;
-            awsVPC?: {
-              __typename?: "AWSVPCConfig";
-              securityGroups: Array<string>;
-              subnets: Array<string>;
-            } | null;
-            capacityProviders: Array<{
-              __typename?: "ECSCapacityProvider";
-              arch?: EcsArchitecture | null;
-              name?: string | null;
-              os?: EcsOperatingSystem | null;
-              windowsVersion?: EcsWindowsVersion | null;
-            }>;
-            clusters: Array<{
-              __typename?: "ECSClusterConfig";
-              name?: string | null;
-              os?: EcsOperatingSystem | null;
-            }>;
-          } | null;
-          secretsManager?: {
-            __typename?: "SecretsManagerConfig";
-            secretPrefix?: string | null;
-          } | null;
         } | null;
         subnets: Array<{ __typename?: "Subnet"; az: string; subnetId: string }>;
       } | null;
@@ -8090,8 +8003,6 @@ export type AdminSettingsQuery = {
       jwtTokenForCLIDisabled?: boolean | null;
       largeParserProjectsDisabled?: boolean | null;
       monitorDisabled?: boolean | null;
-      podAllocatorDisabled?: boolean | null;
-      podInitDisabled?: boolean | null;
       psLoggingDisabled?: boolean | null;
       releaseModeDisabled?: boolean | null;
       repotrackerDisabled?: boolean | null;
@@ -8104,7 +8015,6 @@ export type AdminSettingsQuery = {
       taskDispatchDisabled?: boolean | null;
       taskLoggingDisabled?: boolean | null;
       taskReliabilityDisabled?: boolean | null;
-      unrecognizedPodCleanupDisabled?: boolean | null;
       useMergeQueuePathFilteringDisabled?: boolean | null;
       webhookNotificationsDisabled?: boolean | null;
     } | null;
@@ -9464,77 +9374,6 @@ export type PatchQuery = {
   };
 };
 
-export type PodEventsQueryVariables = Exact<{
-  id: Scalars["String"]["input"];
-  limit?: InputMaybe<Scalars["Int"]["input"]>;
-  page?: InputMaybe<Scalars["Int"]["input"]>;
-}>;
-
-export type PodEventsQuery = {
-  __typename?: "Query";
-  pod: {
-    __typename?: "Pod";
-    id: string;
-    events: {
-      __typename?: "PodEvents";
-      count: number;
-      eventLogEntries: Array<{
-        __typename?: "PodEventLogEntry";
-        id: string;
-        eventType?: string | null;
-        processedAt?: Date | null;
-        resourceId: string;
-        resourceType: string;
-        timestamp?: Date | null;
-        data: {
-          __typename?: "PodEventLogData";
-          newStatus?: string | null;
-          oldStatus?: string | null;
-          reason?: string | null;
-          taskExecution?: number | null;
-          taskID?: string | null;
-          taskStatus?: string | null;
-          task?: {
-            __typename?: "Task";
-            id: string;
-            displayName: string;
-            execution: number;
-          } | null;
-        };
-      }>;
-    };
-  };
-};
-
-export type PodQueryVariables = Exact<{
-  podId: Scalars["String"]["input"];
-}>;
-
-export type PodQuery = {
-  __typename?: "Query";
-  pod: {
-    __typename?: "Pod";
-    id: string;
-    status: string;
-    type: string;
-    task?: {
-      __typename?: "Task";
-      id: string;
-      displayName: string;
-      execution: number;
-    } | null;
-    taskContainerCreationOpts: {
-      __typename?: "TaskContainerCreationOpts";
-      arch: string;
-      cpu: number;
-      image: string;
-      memoryMB: number;
-      os: string;
-      workingDir: string;
-    };
-  };
-};
-
 export type ProjectBannerQueryVariables = Exact<{
   identifier: Scalars["String"]["input"];
 }>;
@@ -10135,12 +9974,6 @@ export type ProjectSettingsQuery = {
         name: string;
         permissions: { [key: string]: any };
       }>;
-      containerSizeDefinitions?: Array<{
-        __typename?: "ContainerResources";
-        cpu: number;
-        memoryMb: number;
-        name: string;
-      }> | null;
       banner?: {
         __typename?: "ProjectBanner";
         text: string;
@@ -10856,12 +10689,6 @@ export type RepoSettingsQuery = {
         name: string;
         permissions: { [key: string]: any };
       }>;
-      containerSizeDefinitions?: Array<{
-        __typename?: "ContainerResources";
-        cpu: number;
-        memoryMb: number;
-        name: string;
-      }> | null;
       patchTriggerAliases?: Array<{
         __typename?: "PatchTriggerAlias";
         alias: string;
@@ -11108,14 +10935,6 @@ export type SpruceConfigQuery = {
       aws?: {
         __typename?: "AWSConfig";
         maxVolumeSizePerUser?: number | null;
-        pod?: {
-          __typename?: "AWSPodConfig";
-          ecs?: {
-            __typename?: "ECSConfig";
-            maxCPU?: number | null;
-            maxMemoryMb?: number | null;
-          } | null;
-        } | null;
       } | null;
     } | null;
     serviceFlags: {
@@ -11208,7 +11027,6 @@ export type TaskEventLogsQuery = {
           hostId?: string | null;
           jiraIssue?: string | null;
           jiraLink?: string | null;
-          podId?: string | null;
           priority?: number | null;
           status?: string | null;
           timestamp?: Date | null;
@@ -11728,7 +11546,6 @@ export type TaskQuery = {
       systemLogLink?: string | null;
       taskLogLink?: string | null;
     };
-    pod?: { __typename?: "Pod"; id: string } | null;
     project?: {
       __typename?: "Project";
       id: string;
