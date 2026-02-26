@@ -294,44 +294,6 @@ query AdminSettings {
       taskFinder
     }
 
-    serviceFlags {
-      agentStartDisabled
-      alertsDisabled
-      backgroundReauthDisabled
-      backgroundStatsDisabled
-      cacheStatsEndpointDisabled
-      cacheStatsJobDisabled
-      checkBlockedTasksDisabled
-      cliUpdatesDisabled
-      cloudCleanupDisabled
-      debugSpawnHostDisabled
-      degradedModeDisabled
-      elasticIPsDisabled
-      emailNotificationsDisabled
-      eventProcessingDisabled
-      githubPRTestingDisabled
-      githubStatusAPIDisabled
-      hostAllocatorDisabled
-      hostInitDisabled
-      jiraNotificationsDisabled
-      jwtTokenForCLIDisabled
-      largeParserProjectsDisabled
-      monitorDisabled
-      psLoggingDisabled
-      releaseModeDisabled
-      repotrackerDisabled
-      s3LifecycleSyncDisabled
-      schedulerDisabled
-      slackNotificationsDisabled
-      sleepScheduleDisabled
-      staticAPIKeysDisabled
-      systemFailedTaskRestartDisabled
-      taskDispatchDisabled
-      taskLoggingDisabled
-      taskReliabilityDisabled
-      useMergeQueuePathFilteringDisabled
-      webhookNotificationsDisabled
-    }
     shutdownWaitSeconds
     singleTaskDistro {
       projectTasksPairs {

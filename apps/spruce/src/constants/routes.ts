@@ -57,7 +57,6 @@ export enum ProjectSettingsTabRoutes {
 
 export enum AdminSettingsGeneralSection {
   Announcements = "announcements",
-  FeatureFlags = "feature-flags",
   Runners = "runners",
   Web = "web",
   Authentication = "authentication",
@@ -69,6 +68,7 @@ export enum AdminSettingsGeneralSection {
 
 export enum AdminSettingsTabRoutes {
   General = "general",
+  ServiceFlags = "service-flags",
   RestartTasks = "restart-tasks",
   EventLog = "event-log",
 }
