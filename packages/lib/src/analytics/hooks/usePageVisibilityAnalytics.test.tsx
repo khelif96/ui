@@ -1,9 +1,7 @@
-import { act, renderHook } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { act, render, renderHook } from "@testing-library/react";
+import { createMemoryRouter, Outlet, RouterProvider } from "react-router-dom";
 import { useAnalyticsRoot } from "./useAnalyticsRoot";
 import { usePageVisibilityAnalytics } from "./usePageVisibilityAnalytics";
-
-// Import after mocking
 
 // Mock the analytics root hook
 vi.mock("./useAnalyticsRoot", () => ({
@@ -11,10 +9,6 @@ vi.mock("./useAnalyticsRoot", () => ({
     sendEvent: vi.fn(),
   })),
 }));
-
-const wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <MemoryRouter>{children}</MemoryRouter>
-);
 
 describe("usePageVisibilityAnalytics", () => {
   let mockSendEvent: ReturnType<typeof vi.fn>;
@@ -38,7 +32,7 @@ describe("usePageVisibilityAnalytics", () => {
   });
 
   it("should track session start on mount", () => {
-    renderHook(() => usePageVisibilityAnalytics({}), { wrapper });
+    renderHook(() => usePageVisibilityAnalytics({}));
 
     expect(mockSendEvent).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -49,12 +43,10 @@ describe("usePageVisibilityAnalytics", () => {
   });
 
   it("should not track events when disabled", () => {
-    renderHook(
-      () =>
-        usePageVisibilityAnalytics({
-          enabled: false,
-        }),
-      { wrapper },
+    renderHook(() =>
+      usePageVisibilityAnalytics({
+        enabled: false,
+      }),
     );
 
     expect(mockSendEvent).not.toHaveBeenCalled();
@@ -63,12 +55,10 @@ describe("usePageVisibilityAnalytics", () => {
   it("should track visibility change from visible to hidden", () => {
     vi.useFakeTimers();
 
-    renderHook(
-      () =>
-        usePageVisibilityAnalytics({
-          minDurationMs: 100,
-        }),
-      { wrapper },
+    renderHook(() =>
+      usePageVisibilityAnalytics({
+        minDurationMs: 100,
+      }),
     );
 
     // Clear the initial session start event
@@ -105,12 +95,10 @@ describe("usePageVisibilityAnalytics", () => {
       configurable: true,
     });
 
-    renderHook(
-      () =>
-        usePageVisibilityAnalytics({
-          minDurationMs: 100,
-        }),
-      { wrapper },
+    renderHook(() =>
+      usePageVisibilityAnalytics({
+        minDurationMs: 100,
+      }),
     );
 
     // Clear the initial session start event
@@ -141,12 +129,10 @@ describe("usePageVisibilityAnalytics", () => {
   it("should not track rapid visibility changes below minimum duration", () => {
     vi.useFakeTimers();
 
-    renderHook(
-      () =>
-        usePageVisibilityAnalytics({
-          minDurationMs: 1000,
-        }),
-      { wrapper },
+    renderHook(() =>
+      usePageVisibilityAnalytics({
+        minDurationMs: 1000,
+      }),
     );
 
     // Clear the initial session start event
@@ -171,12 +157,10 @@ describe("usePageVisibilityAnalytics", () => {
   it("should track session end on unmount with statistics", () => {
     vi.useFakeTimers();
 
-    const { unmount } = renderHook(
-      () =>
-        usePageVisibilityAnalytics({
-          minDurationMs: 100,
-        }),
-      { wrapper },
+    const { unmount } = renderHook(() =>
+      usePageVisibilityAnalytics({
+        minDurationMs: 100,
+      }),
     );
 
     // Simulate some visibility changes
@@ -222,9 +206,7 @@ describe("usePageVisibilityAnalytics", () => {
   it("should track session end even without visibility changes", () => {
     vi.useFakeTimers();
 
-    const { unmount } = renderHook(() => usePageVisibilityAnalytics({}), {
-      wrapper,
-    });
+    const { unmount } = renderHook(() => usePageVisibilityAnalytics({}));
 
     mockSendEvent.mockClear();
 
@@ -245,15 +227,13 @@ describe("usePageVisibilityAnalytics", () => {
   });
 
   it("should pass custom attributes to analytics events", () => {
-    renderHook(
-      () =>
-        usePageVisibilityAnalytics({
-          attributes: {
-            "page.section": "dashboard",
-            "user.role": "admin",
-          },
-        }),
-      { wrapper },
+    renderHook(() =>
+      usePageVisibilityAnalytics({
+        attributes: {
+          "page.section": "dashboard",
+          "user.role": "admin",
+        },
+      }),
     );
 
     expect(useAnalyticsRoot).toHaveBeenCalledWith("PageVisibility", {
@@ -263,9 +243,7 @@ describe("usePageVisibilityAnalytics", () => {
   });
 
   it("should return current visibility state", () => {
-    const { result } = renderHook(() => usePageVisibilityAnalytics({}), {
-      wrapper,
-    });
+    const { result } = renderHook(() => usePageVisibilityAnalytics({}));
 
     expect(result.current.isVisible).toBe(true);
 
@@ -278,13 +256,118 @@ describe("usePageVisibilityAnalytics", () => {
 
     // Note: The hook returns document.visibilityState === "visible" at render time
     // To properly test dynamic updates, we'd need to re-render
-    const { result: result2 } = renderHook(
-      () => usePageVisibilityAnalytics({}),
-      {
-        wrapper,
-      },
+    const { result: result2 } = renderHook(() =>
+      usePageVisibilityAnalytics({}),
     );
 
     expect(result2.current.isVisible).toBe(false);
+  });
+
+  it("should not fire events on route navigation", () => {
+    vi.useFakeTimers();
+
+    const NavigationTestComponent: React.FC = () => {
+      usePageVisibilityAnalytics({});
+      return <Outlet />;
+    };
+
+    const router = createMemoryRouter(
+      [
+        {
+          element: <NavigationTestComponent />,
+          children: [
+            { path: "/", element: <div>Home</div> },
+            { path: "/other", element: <div>Other</div> },
+          ],
+        },
+      ],
+      { initialEntries: ["/"] },
+    );
+
+    render(<RouterProvider router={router} />);
+
+    expect(mockSendEvent).toHaveBeenCalledTimes(1);
+    expect(mockSendEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "System Event session started",
+      }),
+    );
+
+    mockSendEvent.mockClear();
+
+    // Navigate to a new route
+    act(() => {
+      router.navigate("/other");
+    });
+
+    // No session ended/started events should fire on navigation
+    expect(mockSendEvent).not.toHaveBeenCalled();
+
+    // Verify visibility tracking still works after navigation
+    act(() => {
+      vi.advanceTimersByTime(1500);
+    });
+
+    act(() => {
+      Object.defineProperty(document, "visibilityState", {
+        value: "hidden",
+        configurable: true,
+      });
+      document.dispatchEvent(new Event("visibilitychange"));
+    });
+
+    expect(mockSendEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "System Event page hidden",
+        "visibility.duration_ms": expect.any(Number),
+      }),
+    );
+  });
+
+  it("should only send one session started event across multiple navigations", () => {
+    const NavigationTestComponent: React.FC = () => {
+      usePageVisibilityAnalytics({});
+      return <Outlet />;
+    };
+
+    const router = createMemoryRouter(
+      [
+        {
+          element: <NavigationTestComponent />,
+          children: [
+            { path: "/", element: <div>Home</div> },
+            { path: "/page-a", element: <div>Page A</div> },
+            { path: "/page-b", element: <div>Page B</div> },
+          ],
+        },
+      ],
+      { initialEntries: ["/"] },
+    );
+
+    render(<RouterProvider router={router} />);
+
+    act(() => {
+      router.navigate("/page-a");
+    });
+
+    act(() => {
+      router.navigate("/page-b");
+    });
+
+    act(() => {
+      router.navigate("/");
+    });
+
+    const sessionStartedCalls = mockSendEvent.mock.calls.filter(
+      (call: unknown[]) =>
+        (call[0] as { name: string }).name === "System Event session started",
+    );
+    expect(sessionStartedCalls).toHaveLength(1);
+
+    const sessionEndedCalls = mockSendEvent.mock.calls.filter(
+      (call: unknown[]) =>
+        (call[0] as { name: string }).name === "System Event session ended",
+    );
+    expect(sessionEndedCalls).toHaveLength(0);
   });
 });

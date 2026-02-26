@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef } from "react";
-import { useLocation } from "react-router-dom";
 import { useAnalyticsRoot } from "./useAnalyticsRoot";
 
 // Event names must start with "System Event" prefix per ActionType constraint
@@ -46,7 +45,6 @@ export const usePageVisibilityAnalytics = ({
     "PageVisibility",
     stableAttributes,
   );
-  const { pathname } = useLocation();
 
   // Track timing information
   const visibilityStartTime = useRef<number>(0);
@@ -67,7 +65,7 @@ export const usePageVisibilityAnalytics = ({
       lastVisibilityState.current = document.visibilityState;
     }
 
-    // Track session start (only once per pathname)
+    // Track session start (only once per mount)
     if (!sessionStarted.current) {
       sessionStarted.current = true;
       sendEvent({
@@ -145,7 +143,7 @@ export const usePageVisibilityAnalytics = ({
       lastVisibilityState.current = null;
       sessionStarted.current = false;
     };
-  }, [enabled, sendEvent, minDurationMs, pathname]);
+  }, [enabled, sendEvent, minDurationMs]);
 
   return {
     isVisible: document.visibilityState === "visible",
