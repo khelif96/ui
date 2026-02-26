@@ -204,6 +204,7 @@ export type AdminSettings = {
   sage?: Maybe<SageConfig>;
   scheduler?: Maybe<SchedulerConfig>;
   serviceFlags?: Maybe<ServiceFlags>;
+  serviceFlagsList?: Maybe<Array<ServiceFlag>>;
   shutdownWaitSeconds?: Maybe<Scalars["Int"]["output"]>;
   singleTaskDistro?: Maybe<SingleTaskDistroConfig>;
   slack?: Maybe<SlackConfig>;
@@ -2052,6 +2053,7 @@ export type Mutation = {
   setLastRevision: SetLastRevisionPayload;
   /** setPatchVisibility takes a list of patch ids and a boolean to set the visibility on the my patches queries */
   setPatchVisibility: Array<Patch>;
+  setServiceFlags: Array<ServiceFlag>;
   setTaskPriorities: Array<Task>;
   setTaskPriority: Task;
   setVersionPriority?: Maybe<Scalars["String"]["output"]>;
@@ -2288,6 +2290,10 @@ export type MutationSetLastRevisionArgs = {
 export type MutationSetPatchVisibilityArgs = {
   hidden: Scalars["Boolean"]["input"];
   patchIds: Array<Scalars["String"]["input"]>;
+};
+
+export type MutationSetServiceFlagsArgs = {
+  updatedFlags: Array<ServiceFlagInput>;
 };
 
 export type MutationSetTaskPrioritiesArgs = {
@@ -2892,6 +2898,7 @@ export type Project = {
   repotrackerDisabled?: Maybe<Scalars["Boolean"]["output"]>;
   repotrackerError?: Maybe<RepotrackerError>;
   restricted?: Maybe<Scalars["Boolean"]["output"]>;
+  runEveryMainlineCommit?: Maybe<Scalars["Boolean"]["output"]>;
   spawnHostScriptPath: Scalars["String"]["output"];
   stepbackBisect?: Maybe<Scalars["Boolean"]["output"]>;
   stepbackDisabled?: Maybe<Scalars["Boolean"]["output"]>;
@@ -3045,6 +3052,7 @@ export type ProjectInput = {
   repo?: InputMaybe<Scalars["String"]["input"]>;
   repotrackerDisabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   restricted?: InputMaybe<Scalars["Boolean"]["input"]>;
+  runEveryMainlineCommit?: InputMaybe<Scalars["Boolean"]["input"]>;
   spawnHostScriptPath?: InputMaybe<Scalars["String"]["input"]>;
   stepbackBisect?: InputMaybe<Scalars["Boolean"]["input"]>;
   stepbackDisabled?: InputMaybe<Scalars["Boolean"]["input"]>;
@@ -3463,6 +3471,7 @@ export type RepoRef = {
   repo: Scalars["String"]["output"];
   repotrackerDisabled: Scalars["Boolean"]["output"];
   restricted: Scalars["Boolean"]["output"];
+  runEveryMainlineCommit: Scalars["Boolean"]["output"];
   spawnHostScriptPath: Scalars["String"]["output"];
   stepbackBisect?: Maybe<Scalars["Boolean"]["output"]>;
   stepbackDisabled: Scalars["Boolean"]["output"];
@@ -3512,6 +3521,7 @@ export type RepoRefInput = {
   repo?: InputMaybe<Scalars["String"]["input"]>;
   repotrackerDisabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   restricted?: InputMaybe<Scalars["Boolean"]["input"]>;
+  runEveryMainlineCommit?: InputMaybe<Scalars["Boolean"]["input"]>;
   spawnHostScriptPath?: InputMaybe<Scalars["String"]["input"]>;
   stepbackBisect?: InputMaybe<Scalars["Boolean"]["input"]>;
   stepbackDisabled?: InputMaybe<Scalars["Boolean"]["input"]>;
@@ -3806,6 +3816,17 @@ export type SelectorInput = {
   type: Scalars["String"]["input"];
 };
 
+export type ServiceFlag = {
+  __typename?: "ServiceFlag";
+  enabled: Scalars["Boolean"]["output"];
+  name: Scalars["String"]["output"];
+};
+
+export type ServiceFlagInput = {
+  enabled: Scalars["Boolean"]["input"];
+  name: Scalars["String"]["input"];
+};
+
 export type ServiceFlags = {
   __typename?: "ServiceFlags";
   agentStartDisabled?: Maybe<Scalars["Boolean"]["output"]>;
@@ -3832,6 +3853,7 @@ export type ServiceFlags = {
   monitorDisabled?: Maybe<Scalars["Boolean"]["output"]>;
   podAllocatorDisabled?: Maybe<Scalars["Boolean"]["output"]>;
   podInitDisabled?: Maybe<Scalars["Boolean"]["output"]>;
+  psLoggingDisabled?: Maybe<Scalars["Boolean"]["output"]>;
   releaseModeDisabled?: Maybe<Scalars["Boolean"]["output"]>;
   repotrackerDisabled?: Maybe<Scalars["Boolean"]["output"]>;
   s3LifecycleSyncDisabled?: Maybe<Scalars["Boolean"]["output"]>;
@@ -3844,7 +3866,6 @@ export type ServiceFlags = {
   taskLoggingDisabled?: Maybe<Scalars["Boolean"]["output"]>;
   taskReliabilityDisabled?: Maybe<Scalars["Boolean"]["output"]>;
   unrecognizedPodCleanupDisabled?: Maybe<Scalars["Boolean"]["output"]>;
-  useGitForGitHubFilesDisabled?: Maybe<Scalars["Boolean"]["output"]>;
   useMergeQueuePathFilteringDisabled?: Maybe<Scalars["Boolean"]["output"]>;
   webhookNotificationsDisabled?: Maybe<Scalars["Boolean"]["output"]>;
 };
@@ -3874,6 +3895,7 @@ export type ServiceFlagsInput = {
   monitorDisabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   podAllocatorDisabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   podInitDisabled?: InputMaybe<Scalars["Boolean"]["input"]>;
+  psLoggingDisabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   releaseModeDisabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   repotrackerDisabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   s3LifecycleSyncDisabled?: InputMaybe<Scalars["Boolean"]["input"]>;
@@ -3886,7 +3908,6 @@ export type ServiceFlagsInput = {
   taskLoggingDisabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   taskReliabilityDisabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   unrecognizedPodCleanupDisabled?: InputMaybe<Scalars["Boolean"]["input"]>;
-  useGitForGitHubFilesDisabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   useMergeQueuePathFilteringDisabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   webhookNotificationsDisabled?: InputMaybe<Scalars["Boolean"]["input"]>;
 };
@@ -4211,6 +4232,7 @@ export type Task = {
   displayStatus: Scalars["String"]["output"];
   displayTask?: Maybe<Task>;
   distroId: Scalars["String"]["output"];
+  errors?: Maybe<Array<Scalars["String"]["output"]>>;
   estimatedStart?: Maybe<Scalars["Duration"]["output"]>;
   execution: Scalars["Int"]["output"];
   executionTasks?: Maybe<Array<Scalars["String"]["output"]>>;
@@ -4222,6 +4244,7 @@ export type Task = {
   generateTask?: Maybe<Scalars["Boolean"]["output"]>;
   generatedBy?: Maybe<Scalars["String"]["output"]>;
   generatedByName?: Maybe<Scalars["String"]["output"]>;
+  generator?: Maybe<Task>;
   hasTestResults: Scalars["Boolean"]["output"];
   hostId?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["String"]["output"];
@@ -4632,6 +4655,7 @@ export type TicketFields = {
   assignedTeam?: Maybe<Scalars["String"]["output"]>;
   assigneeDisplayName?: Maybe<Scalars["String"]["output"]>;
   created: Scalars["String"]["output"];
+  failingTasks?: Maybe<Array<Scalars["String"]["output"]>>;
   resolutionName?: Maybe<Scalars["String"]["output"]>;
   status: JiraStatus;
   summary: Scalars["String"]["output"];
@@ -4708,7 +4732,6 @@ export type UiConfig = {
   csrfKey?: Maybe<Scalars["String"]["output"]>;
   defaultProject: Scalars["String"]["output"];
   fileStreamingContentTypes: Array<Scalars["String"]["output"]>;
-  helpUrl?: Maybe<Scalars["String"]["output"]>;
   httpListenAddr?: Maybe<Scalars["String"]["output"]>;
   loginDomain?: Maybe<Scalars["String"]["output"]>;
   parsleyUrl?: Maybe<Scalars["String"]["output"]>;
@@ -4726,7 +4749,6 @@ export type UiConfigInput = {
   csrfKey: Scalars["String"]["input"];
   defaultProject: Scalars["String"]["input"];
   fileStreamingContentTypes: Array<Scalars["String"]["input"]>;
-  helpUrl: Scalars["String"]["input"];
   httpListenAddr: Scalars["String"]["input"];
   loginDomain: Scalars["String"]["input"];
   parsleyUrl: Scalars["String"]["input"];
