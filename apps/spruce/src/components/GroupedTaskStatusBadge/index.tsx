@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { taskStatusToCopy } from "@evg-ui/lib/constants/task";
 import { fontSize, size } from "@evg-ui/lib/constants/tokens";
 import { TaskStatus } from "@evg-ui/lib/types/task";
-import { TaskBox } from "components/TaskBox";
 import { mapUmbrellaStatusColors } from "constants/task";
 
 interface GroupedTaskStatusBadgeProps {
@@ -58,7 +57,6 @@ export const GroupedTaskStatusBadge: React.FC<GroupedTaskStatusBadgeProps> = ({
         {statusCounts &&
           Object.entries(statusCounts).map(([taskStatus, taskCount]) => (
             <Row key={taskStatus}>
-              <TaskBox status={taskStatus as TaskStatus} />
               <span>
                 <Count>{taskCount}</Count>{" "}
                 {taskStatusToCopy[taskStatus as TaskStatus] ?? taskStatus}
