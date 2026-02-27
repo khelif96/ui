@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { Checkbox } from "@leafygreen-ui/checkbox";
 import { size } from "@evg-ui/lib/constants/tokens";
 import { TaskStatus } from "@evg-ui/lib/types/task";
-import { TaskBox as BaseTaskBox, SQUARE_WITH_BORDER } from "components/TaskBox";
+import { TaskBox as BaseTaskBox } from "components/TaskBox";
 
 interface TaskStatusCheckboxProps {
   baseStatus?: string;
@@ -28,9 +28,9 @@ const CheckboxComponent: React.FC<TaskStatusCheckboxProps> = ({
     data-cy="task-status-checkbox"
     label={
       <StateItemWrapper>
-        <TaskBox status={status as TaskStatus} />
+        <TaskBox squareSize={14} status={status as TaskStatus} />
         {baseStatus ? (
-          <TaskBox status={baseStatus as TaskStatus} />
+          <TaskBox squareSize={14} status={baseStatus as TaskStatus} />
         ) : (
           <EmptyCell />
         )}
@@ -57,7 +57,10 @@ const TaskBox = styled(BaseTaskBox)`
   flex-shrink: 0;
 `;
 
+const CHECKBOX_SQUARE_SIZE = 14;
+const CHECKBOX_SQUARE_BORDER = 1;
+
 const EmptyCell = styled.span`
-  width: ${SQUARE_WITH_BORDER}px;
+  width: ${CHECKBOX_SQUARE_SIZE + CHECKBOX_SQUARE_BORDER * 2}px;
   flex-shrink: 0;
 `;

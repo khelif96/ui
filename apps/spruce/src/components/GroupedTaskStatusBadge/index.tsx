@@ -97,6 +97,7 @@ const Row = styled.div`
   white-space: nowrap;
   display: flex;
   align-items: center;
+  gap: ${size.xxs};
 `;
 
 const Number = styled.span`

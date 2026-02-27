@@ -34,7 +34,7 @@ export const HistoryTableIcon: React.FC<HistoryTableIconProps> = ({
         onClick={() => onClick()}
       >
         <IconContainer>
-          <TaskBox status={status} />
+          <TaskBox squareSize={24} status={status} />
         </IconContainer>
         {!inactive && <Body>{label}</Body>}
       </Container>
