@@ -4,19 +4,28 @@ import { useAnalyticsRoot } from "./useAnalyticsRoot";
 // Event names must start with "System Event" prefix per ActionType constraint
 type PageVisibilityAction =
   | {
+      // Fired when the user returns to the page (e.g. switches back to this tab).
+      // duration_ms is how long the page was hidden before becoming visible.
       name: "System Event page visible";
       "visibility.duration_ms": number;
     }
   | {
+      // Fired when the user leaves the page (e.g. switches tabs, minimizes window).
+      // duration_ms is how long the page was visible before being hidden.
       name: "System Event page hidden";
       "visibility.duration_ms": number;
     }
   | {
+      // Fired once on mount. Captures whether the page was already visible or
+      // hidden (e.g. opened in a background tab) when the user first arrived.
       name: "System Event session started";
       // "hidden" = browser tab/window is in background
       "visibility.initial_state": "visible" | "hidden";
     }
   | {
+      // Fired on unmount (navigation away, page unload, etc.).
+      // Summarizes total visible/hidden time and number of visibility changes
+      // that exceeded the minDurationMs threshold for the entire session.
       name: "System Event session ended";
       "visibility.total_visible_ms": number;
       "visibility.total_hidden_ms": number;
