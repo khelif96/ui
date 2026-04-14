@@ -13,6 +13,26 @@ export default defineConfig(
       "sort-imports": [ERROR, { ignoreDeclarationSort: true }],
     },
   },
+  // Playwright overrides for Parsley.
+  {
+    name: "playwright/parsley-overrides",
+    files: ["playwright/**/*.ts"],
+    rules: {
+      "playwright/expect-expect": [
+        "warn",
+        {
+          assertFunctionNames: [
+            "addFilter",
+            "assertValueCopiedToClipboard",
+            "isContainedInViewport",
+            "isNotContainedInViewport",
+            "validateToast",
+          ],
+        },
+      ],
+      "playwright/no-force-option": "off",
+    },
+  },
   // Sort Keys File ESLint (eslint-plugin-sort-keys-plus) settings.
   // TODO DEVPROD-6890: This plugin should be dropped because the project has been abandoned.
   // It may potentially be replaced by Perfectionist's sort-objects rule (https://perfectionist.dev/rules/sort-objects).
