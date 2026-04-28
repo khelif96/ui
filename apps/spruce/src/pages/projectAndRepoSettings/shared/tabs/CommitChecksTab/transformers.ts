@@ -57,7 +57,7 @@ export const formToGql = ((
   id,
 ) => {
   const projectRef: ProjectInput = {
-    id: id,
+    id,
     githubChecksEnabled,
   };
 
@@ -67,11 +67,9 @@ export const formToGql = ((
     AliasNames.GithubCheck,
   );
 
-  const aliases = [...githubCommitCheckAliases];
-
   return {
     ...(isRepo ? { repoId: id } : { projectId: id }),
     projectRef,
-    aliases,
+    aliases: githubCommitCheckAliases,
   };
 }) satisfies FormToGqlFunction<Tab>;

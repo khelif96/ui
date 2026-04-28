@@ -13,14 +13,14 @@ import { BaseTab } from "../BaseTab";
 import { ProjectType, ErrorType, getVersionControlError } from "../utils";
 import { getFormSchema } from "./getFormSchema";
 import { mergeProjectRepo } from "./transformers";
-import { CommitChecksFormState, TabProps } from "./types";
+import { PullRequestsFormState, TabProps } from "./types";
 
-const tab = ProjectSettingsTabRoutes.CommitChecks;
+const tab = ProjectSettingsTabRoutes.PullRequests;
 
 const getInitialFormState = (
-  projectData: CommitChecksFormState,
-  repoData: CommitChecksFormState,
-): CommitChecksFormState => {
+  projectData?: PullRequestsFormState,
+  repoData?: PullRequestsFormState,
+): PullRequestsFormState | undefined => {
   if (!projectData) return repoData;
   if (repoData) {
     return mergeProjectRepo(projectData, repoData);
@@ -28,7 +28,7 @@ const getInitialFormState = (
   return projectData;
 };
 
-export const CommitChecksTab: React.FC<TabProps> = ({
+export const PullRequestsTab: React.FC<TabProps> = ({
   githubWebhooksEnabled,
   projectData,
   projectId,
@@ -37,7 +37,7 @@ export const CommitChecksTab: React.FC<TabProps> = ({
   versionControlEnabled,
 }) => {
   const { getTab } = useProjectSettingsContext();
-  const { formData } = getTab(tab) as { formData: CommitChecksFormState };
+  const { formData } = getTab(tab) as { formData: PullRequestsFormState };
 
   const { data } = useQuery<
     GithubProjectConflictsQuery,
@@ -46,9 +46,7 @@ export const CommitChecksTab: React.FC<TabProps> = ({
     GITHUB_PROJECT_CONFLICTS,
     projectType === ProjectType.Repo ? skipToken : { variables: { projectId } },
   );
-
   const initialFormState = useMemo(
-    // @ts-expect-error: FIXME. This comment was added by an automated script.
     () => getInitialFormState(projectData, repoData),
     [projectData, repoData],
   );
@@ -85,6 +83,7 @@ export const CommitChecksTab: React.FC<TabProps> = ({
       <BaseTab
         disabled={!githubWebhooksEnabled}
         formSchema={formSchema}
+        // @ts-expect-error: FIXME. This comment was added by an automated script.
         initialFormState={initialFormState}
         tab={tab}
         validate={validateConflicts}
@@ -95,13 +94,13 @@ export const CommitChecksTab: React.FC<TabProps> = ({
 
 const validate = (
   projectType: ProjectType,
-  repoData: CommitChecksFormState | undefined,
+  repoData: PullRequestsFormState | undefined,
   versionControlEnabled: boolean,
 ) =>
   ((formData, errors) => {
     const {
-      github: { githubChecks, githubChecksEnabled },
-    } = formData as CommitChecksFormState;
+      github: { prTesting, prTestingEnabled },
+    } = formData;
 
     const getAliasError = getVersionControlError(
       versionControlEnabled,
@@ -110,14 +109,14 @@ const validate = (
 
     if (
       getAliasError(
-        githubChecksEnabled ?? false,
-        githubChecks?.githubCheckAliasesOverride ?? false,
-        githubChecks?.githubCheckAliases ?? [],
-        repoData?.github?.githubChecks?.githubCheckAliases ?? [],
+        !!prTestingEnabled,
+        prTesting?.githubPrAliasesOverride,
+        prTesting?.githubPrAliases,
+        repoData?.github?.prTesting?.githubPrAliases ?? [],
       ) === ErrorType.Error
     ) {
-      errors.github.githubChecks?.addError?.("Missing Commit Check Definition");
+      errors.github.prTesting.addError("Missing Patch Definition");
     }
 
     return errors;
-  }) satisfies ValidateProps<CommitChecksFormState>;
+  }) satisfies ValidateProps<PullRequestsFormState>;
