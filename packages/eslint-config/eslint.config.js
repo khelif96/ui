@@ -1,5 +1,6 @@
 import * as emotionPlugin from "@emotion/eslint-plugin";
 import { fixupPluginRules } from "@eslint/compat";
+import stylisticPlugin from "@stylistic/eslint-plugin";
 import eslint from "@eslint/js";
 import graphqlPlugin from "@graphql-eslint/eslint-plugin";
 import { defineConfig } from "eslint/config";
@@ -65,6 +66,7 @@ const eslintConfig = {
   name: "@eslint/js/rules",
   plugins: {
     "@eslint/js": eslint,
+    "@stylistic": stylisticPlugin,
   },
   files: ["**/*.js?(x)", "**/*.ts?(x)"],
   rules: {
@@ -121,7 +123,7 @@ const eslintConfig = {
     "prefer-regex-literals": [ERROR, { disallowRedundantWrapping: true }],
     "prefer-template": ERROR,
     radix: ERROR,
-    "spaced-comment": [ERROR, "always", { markers: ["/"] }], // TODO: This rule is deprecated - fix in DEVPROD-15014.
+    "@stylistic/spaced-comment": [ERROR, "always", { markers: ["/"] }],
     yoda: ERROR,
   },
 };
@@ -353,6 +355,7 @@ const graphQLConfig = {
   },
   plugins: {
     "@graphql-eslint": graphqlPlugin,
+    "@stylistic": stylisticPlugin,
   },
   rules: {
     ...graphqlPlugin.configs["flat/operations-recommended"].rules,
@@ -369,7 +372,7 @@ const graphQLConfig = {
     ],
     "@graphql-eslint/no-deprecated": ERROR,
     "@graphql-eslint/selection-set-depth": [ERROR, { maxDepth: 8 }],
-    "spaced-comment": OFF,
+    "@stylistic/spaced-comment": OFF,
 
     // The following two rules are disabled because Spruce and Parsley could have
     // identical fragment and operation names.
